@@ -1,5 +1,5 @@
 import time
-
+from datetime import datetime
 DEPLOYMENT = False  # This variable is to understand whether you are deploying on the actual hardware
 
 try:
@@ -54,15 +54,15 @@ class IntelligentOffice:
         self.buzzer_on = False
 
     def check_quadrant_occupancy(self, pin: int) -> bool:
-        if pin in [self.INFRARED_PIN1, self.INFRARED_PIN2]:
+        if pin in [self.INFRARED_PIN1, self.INFRARED_PIN2, self.INFRARED_PIN3, self.INFRARED_PIN4]:
             return GPIO.input(pin)
         else:
             raise IntelligentOfficeError
 
 
     def manage_blinds_based_on_time(self) -> None:
-        # To be implemented
         pass
+
 
     def manage_light_level(self) -> None:
         # To be implemented

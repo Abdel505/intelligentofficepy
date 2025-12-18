@@ -24,3 +24,13 @@ class TestIntelligentOffice(unittest.TestCase):
     def test_check_occupancy_raise_error(self):
         office = IntelligentOffice()
         self.assertRaises(IntelligentOfficeError, office.check_quadrant_occupancy, 1)
+
+    @patch.object(SDL_DS3231, "read_datetime")
+    def test_manage_blinds_based_on_time(self, mock_datetime: Mock):
+        mock_datetime.return_value = {"hour": 12, "minute": 0, "second": 0}
+        office = IntelligentOffice()
+        office.manage_blinds_based_on_time()
+        self.assertTrue(office.blinds_open)
+
+
+
