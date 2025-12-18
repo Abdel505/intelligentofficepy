@@ -10,7 +10,8 @@ from src.intelligentoffice import IntelligentOffice, IntelligentOfficeError
 class TestIntelligentOffice(unittest.TestCase):
 
     @patch.object(GPIO, "input")
-    def test_if_infrared_sensor_1_detect_worker(self, infrared_sensor_1: Mock):
+    def test_detect_worker_in_quadrant_1(self, infrared_sensor_1: Mock):
         infrared_sensor_1.return_value = True
         office = IntelligentOffice()
         self.assertTrue(office.check_quadrant_occupancy(office.INFRARED_PIN1))
+
