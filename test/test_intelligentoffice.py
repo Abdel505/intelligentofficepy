@@ -19,5 +19,8 @@ class TestIntelligentOffice(unittest.TestCase):
     def test_detect_worker_in_office(self, infrared_distance_sensor: Mock):
         infrared_distance_sensor.return_value = True
         office = IntelligentOffice()
-        outcome = office.check_quadrant_occupancy(office.INFRARED_PIN1)
+        outcome = office.check_quadrant_occupancy(office.INFRARED_PIN2)
         self.assertTrue(outcome)
+    def test_check_occupancy_raise_error(self):
+        office = IntelligentOffice()
+        self.assertRaises(IntelligentOfficeError, office.check_quadrant_occupancy, 1)
