@@ -27,7 +27,7 @@ class TestIntelligentOffice(unittest.TestCase):
     @patch.object(IntelligentOffice, "change_servo_angle")
     @patch.object(SDL_DS3231, "read_datetime")
     def test_manage_blinds_based_on_time(self, mock_current_time: Mock, servo_moto: Mock):
-        mock_current_time.return_value = datetime(2025, 12, 19, 9, 0, 0)
+        mock_current_time.return_value = datetime(2025, 12, 19, 12, 0, 0)
         office = IntelligentOffice()
         office.manage_blinds_based_on_time()
         servo_moto.assert_called_with(12)
