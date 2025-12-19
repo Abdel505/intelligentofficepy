@@ -1,9 +1,8 @@
 import unittest
 from datetime import datetime
-from unittest.mock import patch, Mock, PropertyMock
+from unittest.mock import patch, Mock
 import mock.GPIO as GPIO
 from mock.SDL_DS3231 import SDL_DS3231
-from mock.adafruit_veml7700 import VEML7700
 from src.intelligentoffice import IntelligentOffice, IntelligentOfficeError
 
 
@@ -25,12 +24,15 @@ class TestIntelligentOffice(unittest.TestCase):
         office = IntelligentOffice()
         self.assertRaises(IntelligentOfficeError, office.check_quadrant_occupancy, 1)
 
+    @patch.object(IntelligentOffice, "change_servo_angle")
     @patch.object(SDL_DS3231, "read_datetime")
-    def test_manage_blinds_based_on_time(self, mock_datetime: Mock):
-        mock_datetime.return_value = {"hour": 12, "minute": 0, "second": 0}
+    def test_manage_blinds_based_on_time(self, mock_current_time: Mock, servo_moto: Mock):
+        mock_current_time.return_value = datetime(2025, 12, 19, 9, 0, 0)
         office = IntelligentOffice()
         office.manage_blinds_based_on_time()
+        servo_moto.assert_called_with(12)
         self.assertTrue(office.blinds_open)
+
 
 
 

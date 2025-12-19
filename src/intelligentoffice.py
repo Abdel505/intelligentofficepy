@@ -1,5 +1,5 @@
 import time
-from datetime import datetime
+from datetime import datetime, time
 DEPLOYMENT = False  # This variable is to understand whether you are deploying on the actual hardware
 
 try:
@@ -61,7 +61,16 @@ class IntelligentOffice:
 
 
     def manage_blinds_based_on_time(self) -> None:
-        pass
+        current_time = self.rtc.read_datetime().time()
+        open_time = time(8,0, 0)
+        close_time = time(20, 0, 0)
+        if open_time <= current_time <= close_time:
+            self.change_servo_angle(12)
+            self.blinds_open = True
+        else:
+            self.change_servo_angle(2)
+            self.blinds_open = False
+
 
 
     def manage_light_level(self) -> None:
