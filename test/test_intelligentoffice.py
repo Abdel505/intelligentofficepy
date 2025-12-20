@@ -1,9 +1,11 @@
 import unittest
 from datetime import datetime
-from unittest.mock import patch, Mock
+from unittest.mock import patch, Mock, PropertyMock
 import mock.GPIO as GPIO
 from mock.SDL_DS3231 import SDL_DS3231
+from mock.adafruit_veml7700 import VEML7700
 from src.intelligentoffice import IntelligentOffice, IntelligentOfficeError
+
 
 
 class TestIntelligentOffice(unittest.TestCase):
@@ -32,6 +34,18 @@ class TestIntelligentOffice(unittest.TestCase):
         office.manage_blinds_based_on_time()
         servo_moto.assert_called_with(12)
         self.assertTrue(office.blinds_open)
+
+    @patch.object(GPIO, "output")
+    @patch.object(VEML7700, "lux", new_callable=PropertyMock)
+
+    def test_manage_light_level(self, mock_lux:Mock, mock_led: Mock):
+        mock_lux.return_value= 490
+        office = IntelligentOffice()
+        office.manage_light_level()
+        self.assertTrue(office.light_on)
+        mock_led.assert_called_with(office.LED_PIN, True)
+
+
 
 
 
