@@ -77,18 +77,13 @@ class IntelligentOffice:
 
     def manage_light_level(self) -> None:
         occupancy_pins= [self.INFRARED_PIN1, self.INFRARED_PIN2, self.INFRARED_PIN3, self.INFRARED_PIN4]
+        light_level = self.ambient_light_sensor.lux
         is_occupied = any(self.check_quadrant_occupancy(pin) for pin in occupancy_pins)
-        if is_occupied:
-            light_level = self.ambient_light_sensor.lux
-            if light_level <= 500:
-                self.light_on = True
-                GPIO.output(self.LED_PIN, True)
-            else:
-                self.light_on = False
-                GPIO.output(self.LED_PIN, False)
+        if is_occupied and light_level <= 500:
+            self.light_on = True
         else:
             self.light_on = False
-            GPIO.output(self.LED_PIN, False)
+        GPIO.output(self.LED_PIN, self.light_on)
 
 
     def monitor_air_quality(self) -> None:
