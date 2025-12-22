@@ -9,20 +9,43 @@ from src.intelligentoffice import IntelligentOffice, IntelligentOfficeError
 
 
 class TestIntelligentOffice(unittest.TestCase):
+    @patch.object(GPIO, "input")
+    def test_check_occupancy_all_pins_different_states(self, mock_sensor: Mock):
+        office = IntelligentOffice()
+        # Provide a list of results in the order they will be called
+        mock_sensor.side_effect = [True, True, False, True]
+        res1 = office.check_quadrant_occupancy(office.INFRARED_PIN1)
+        res2 = office.check_quadrant_occupancy(office.INFRARED_PIN2)
+        res3 = office.check_quadrant_occupancy(office.INFRARED_PIN3)
+        res4 = office.check_quadrant_occupancy(office.INFRARED_PIN4)
+        self.assertTrue(res1)
+        self.assertTrue(res2)
+        self.assertFalse(res3)
+        self.assertTrue(res4)
+        # Verify hardware was hit exactly 4 times
+        self.assertEqual(mock_sensor.call_count, 4)
 
     @patch.object(GPIO, "input")
-    def test_detect_worker_in_quadrant_1(self, infrared_sensor_1: Mock):
-        infrared_sensor_1.return_value = True
+    def test_detect_worker_in_office_by_specific_pin(self, mock_sensor: Mock):
         office = IntelligentOffice()
-        self.assertTrue(office.check_quadrant_occupancy(office.INFRARED_PIN1))
+        # Define how the hardware should respond to specific pins
+        def side_effect_func(pin):
+            return pin == office.INFRARED_PIN1 # True only for PIN3, False for others
+        # Assign the function to side_effect (not return_value)
+        mock_sensor.side_effect = side_effect_func
+        # Execution: Check different pins
+        test_sensor2 = office.check_quadrant_occupancy(office.INFRARED_PIN2)
+        test_sensor1 = office.check_quadrant_occupancy(office.INFRARED_PIN1)
+        test_sensor4 = office.check_quadrant_occupancy(office.INFRARED_PIN4)
 
-    @patch.object(GPIO, "input")
-    def test_detect_worker_in_office(self, infrared_distance_sensor: Mock):
-        infrared_distance_sensor.return_value = True
-        office = IntelligentOffice()
-        outcome = office.check_quadrant_occupancy(office.INFRARED_PIN2)
-        self.assertTrue(outcome)
-    def test_check_occupancy_raise_error(self):
+        # Assertions
+        self.assertFalse(test_sensor2, "Pin 2 should be empty")
+        self.assertTrue(test_sensor1, "Pin 1 should be occupied")
+        self.assertFalse(test_sensor4, "Pin 4 should be empty")
+
+        # We called the method 3 times total
+        self.assertEqual(mock_sensor.call_count, 3)
+    def test_check_occupancy_raise_error_2(self):
         office = IntelligentOffice()
         self.assertRaises(IntelligentOfficeError, office.check_quadrant_occupancy, 1)
 
@@ -35,14 +58,6 @@ class TestIntelligentOffice(unittest.TestCase):
         servo_moto.assert_called_with(12)
         self.assertTrue(office.blinds_open)
 
-    '''@patch.object(GPIO, "output")
-    @patch.object(VEML7700, "lux", new_callable=PropertyMock)
-    def test_manage_light_level(self, mock_lux:Mock, mock_led: Mock):
-        mock_lux.return_value= 490
-        office = IntelligentOffice()
-        office.manage_light_level()
-        #self.assertTrue(office.light_on)
-        mock_led.assert_called_with(office.LED_PIN, True)'''
 
     @patch.object(IntelligentOffice, "check_quadrant_occupancy")
     @patch.object(GPIO, "output")
